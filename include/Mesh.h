@@ -14,12 +14,12 @@ struct Transform {
 
   mat4 getMatrix() const {
 		// translation
-    mat4 m = translate(glm::mat4(1.0f), position);
+    mat4 m = translate(mat4(1.0f), position);
 
 		// rotation
-    m = rotate(m, rotation.x, glm::vec3(1, 0, 0));
-    m = rotate(m, rotation.y, glm::vec3(0, 1, 0));
-    m = rotate(m, rotation.z, glm::vec3(0, 0, 1));
+    m = rotate(m, rotation.x, vec3(1, 0, 0));
+    m = rotate(m, rotation.y, vec3(0, 1, 0));
+    m = rotate(m, rotation.z, vec3(0, 0, 1));
 
 		// scale
 		// for some reason can't do scale() without glm:: ??
@@ -36,6 +36,8 @@ public:
   GLuint vboColours = 0;
   GLuint eboIndices = 0;
   GLuint indexCount = 0;
+
+  Transform transform;
 
   Mesh() = default;
 

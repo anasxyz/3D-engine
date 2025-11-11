@@ -14,7 +14,37 @@ public:
   Mesh() = default;
 
   void setup(std::vector<GLfloat> &positions, std::vector<GLfloat> &colours,
-             std::vector<GLuint> &indices) {}
+             std::vector<GLuint> &indices) {
+		indexCount = indices.size();
+		
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		// positions
+		glGenBuffers(1, &vboPositions);
+		glBindBuffer(GL_ARRAY_BUFFER, vboPositions);
+		glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(GLfloat),
+					 positions.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+		// colours
+		glGenBuffers(1, &vboColours);
+		glBindBuffer(GL_ARRAY_BUFFER, vboColours);
+		glBufferData(GL_ARRAY_BUFFER, colours.size() * sizeof(GLfloat),
+					 colours.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+		// indices
+		glGenBuffers(1, &eboIndices);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboIndices);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint),
+					 indices.data(), GL_STATIC_DRAW);
+
+		// unbind vao
+		glBindVertexArray(0);
+	}
 
   void draw() {}
 };

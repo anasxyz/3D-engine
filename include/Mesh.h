@@ -7,42 +7,19 @@
 
 using namespace glm;
 
-struct Transform {
-  vec3 position = vec3(0.0f);
-  vec3 rotation = vec3(0.0f);
-  vec3 scale = vec3(1.0f);
-
-  mat4 getMatrix() const {
-		// translation
-    mat4 m = translate(mat4(1.0f), position);
-
-		// rotation
-    m = rotate(m, rotation.x, vec3(1, 0, 0));
-    m = rotate(m, rotation.y, vec3(0, 1, 0));
-    m = rotate(m, rotation.z, vec3(0, 0, 1));
-
-		// scale
-		// for some reason can't do scale() without glm:: ??
-    m = glm::scale(m, scale);
-
-    return m;
-  }
-};
-
 class Mesh {
 public:
   GLuint vao;
   GLuint vboPositions = 0;
   GLuint vboColours = 0;
+  GLuint vboNormals = 0;
   GLuint eboIndices = 0;
   GLuint indexCount = 0;
-
-  Transform transform;
 
   Mesh() = default;
 
   void setup(std::vector<GLfloat> &positions, std::vector<GLfloat> &colours,
-             std::vector<GLuint> &indices) {
+             std::vector<GLfloat> &normals, std::vector<GLuint> &indices) {
     indexCount = indices.size();
 
     glGenVertexArrays(1, &vao);
@@ -64,6 +41,14 @@ public:
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
+    // normals
+    glGenBuffers(1, &vboNormals);
+    glBindBuffer(GL_ARRAY_BUFFER, vboNormals);
+    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(GLfloat),
+                 normals.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
     // indices
     glGenBuffers(1, &eboIndices);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboIndices);
@@ -74,7 +59,7 @@ public:
     glBindVertexArray(0);
   }
 
-  void draw() {
+  void draw() const {
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);

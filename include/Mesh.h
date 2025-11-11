@@ -1,7 +1,33 @@
 #pragma once
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+
+using namespace glm;
+
+struct Transform {
+  vec3 position = vec3(0.0f);
+  vec3 rotation = vec3(0.0f);
+  vec3 scale = vec3(1.0f);
+
+  mat4 getMatrix() const {
+		// translation
+    mat4 m = translate(glm::mat4(1.0f), position);
+
+		// rotation
+    m = rotate(m, rotation.x, glm::vec3(1, 0, 0));
+    m = rotate(m, rotation.y, glm::vec3(0, 1, 0));
+    m = rotate(m, rotation.z, glm::vec3(0, 0, 1));
+
+		// scale
+		// for some reason can't do scale() without glm:: ??
+    m = glm::scale(m, scale);
+
+    return m;
+  }
+};
 
 class Mesh {
 public:
@@ -15,40 +41,40 @@ public:
 
   void setup(std::vector<GLfloat> &positions, std::vector<GLfloat> &colours,
              std::vector<GLuint> &indices) {
-		indexCount = indices.size();
-		
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
+    indexCount = indices.size();
 
-		// positions
-		glGenBuffers(1, &vboPositions);
-		glBindBuffer(GL_ARRAY_BUFFER, vboPositions);
-		glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(GLfloat),
-					 positions.data(), GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
 
-		// colours
-		glGenBuffers(1, &vboColours);
-		glBindBuffer(GL_ARRAY_BUFFER, vboColours);
-		glBufferData(GL_ARRAY_BUFFER, colours.size() * sizeof(GLfloat),
-					 colours.data(), GL_STATIC_DRAW);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    // positions
+    glGenBuffers(1, &vboPositions);
+    glBindBuffer(GL_ARRAY_BUFFER, vboPositions);
+    glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(GLfloat),
+                 positions.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
-		// indices
-		glGenBuffers(1, &eboIndices);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboIndices);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint),
-					 indices.data(), GL_STATIC_DRAW);
+    // colours
+    glGenBuffers(1, &vboColours);
+    glBindBuffer(GL_ARRAY_BUFFER, vboColours);
+    glBufferData(GL_ARRAY_BUFFER, colours.size() * sizeof(GLfloat),
+                 colours.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
-		// unbind vao
-		glBindVertexArray(0);
-	}
+    // indices
+    glGenBuffers(1, &eboIndices);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboIndices);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint),
+                 indices.data(), GL_STATIC_DRAW);
+
+    // unbind vao
+    glBindVertexArray(0);
+  }
 
   void draw() {
-		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-	}
+    glBindVertexArray(vao);
+    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+  }
 };

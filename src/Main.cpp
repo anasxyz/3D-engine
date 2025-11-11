@@ -102,6 +102,7 @@ void init() {
 
   // create cube meshes
   Mesh cubeMesh = createCube();
+	Mesh sphereMesh = createSphere();
 
   // create scene objects
   auto cube1 = scene.createObject("Cube1", cubeMesh);
@@ -111,9 +112,9 @@ void init() {
   cube2->transform.position = vec3(2.0f, 1.0f, -4.0f);
   cube2->transform.scale = vec3(0.5f);
 
-  auto cube3 = scene.createObject("Cube3", cubeMesh);
-  cube3->transform.position = vec3(-2.0f, -1.0f, -3.0f);
-  cube3->transform.scale = vec3(0.8f);
+  auto sphere1 = scene.createObject("Sphere1", sphereMesh);
+  sphere1->transform.position = vec3(-2.0f, -1.0f, -3.0f);
+  sphere1->transform.scale = vec3(0.8f);
 }
 
 int main() {

@@ -50,52 +50,70 @@ inline Mesh createSphere(float radius = 1.0f, int stacks = 16,
                          int slices = 32) {
   Mesh sphere;
 
-  std::vector<GLfloat> positions;
+  if (stacks < 2)
+    stacks = 2;
+  if (slices < 3)
+    slices = 3;
+
+  std::vector<GLfloat> positions; 
   std::vector<GLfloat> colors;
+  std::vector<GLfloat> normals;
   std::vector<GLuint> indices;
 
   for (int i = 0; i <= stacks; ++i) {
-    float phi = glm::pi<float>() * (float)i / (float)stacks; // from 0 to π
+    float v = (float)i / (float)stacks;
+    float phi = glm::pi<float>() * v;
+
+    float sinPhi = sin(phi);
+    float cosPhi = cos(phi);
 
     for (int j = 0; j < slices; ++j) {
-      float theta =
-          glm::two_pi<float>() * (float)j / (float)slices; // from 0 to 2π
+      float u = (float)j / (float)slices;
+      float theta = glm::two_pi<float>() * u; 
 
-      float x = radius * sin(phi) * cos(theta);
-      float y = radius * cos(phi);
-      float z = radius * sin(phi) * sin(theta);
+      float x = radius * sinPhi * cos(theta);
+      float y = radius * cosPhi;
+      float z = radius * sinPhi * sin(theta);
 
+      // position
       positions.push_back(x);
       positions.push_back(y);
       positions.push_back(z);
       positions.push_back(1.0f);
 
-      // give each vertex a simple color gradient (optional)
-      float u = (float)j / slices;
-      if (j == slices)
-        u = 0.0f; // wrap around to avoid color seam
+      // normal
+      glm::vec3 n = glm::normalize(glm::vec3(x, y, z));
+      normals.push_back(n.x);
+      normals.push_back(n.y);
+      normals.push_back(n.z);
 
-      colors.push_back((float)i / stacks);
-      colors.push_back(u);
-      colors.push_back(1.0f - (float)i / stacks);
+      // color 
+			// derived from normal which should be continous across the seam now (i think)
+      glm::vec3 color = (n * 0.5f) + glm::vec3(0.5f);
+      colors.push_back(color.r);
+      colors.push_back(color.g);
+      colors.push_back(color.b);
       colors.push_back(1.0f);
     }
   }
 
-  // generate indices
+  // incides
+	// use modulo to wrap around the longitude seam properly
   for (int i = 0; i < stacks; ++i) {
     for (int j = 0; j < slices; ++j) {
-      int first = i * slices + j;
-      int second = first + slices;
+      int nextJ = (j + 1) % slices;
 
-      int nextJ = (j + 1) % slices; // wrap around
-      int firstNext = i * slices + nextJ;
-      int secondNext = firstNext + slices;
+      GLuint first = (GLuint)(i * slices + j);
+      GLuint second = (GLuint)((i + 1) * slices + j);
+      GLuint firstNext = (GLuint)(i * slices + nextJ);
+      GLuint secondNext = (GLuint)((i + 1) * slices + nextJ);
 
+      // triangle 1
       indices.push_back(first);
       indices.push_back(second);
       indices.push_back(firstNext);
 
+      // triangle 2
       indices.push_back(second);
       indices.push_back(secondNext);
       indices.push_back(firstNext);
@@ -103,5 +121,6 @@ inline Mesh createSphere(float radius = 1.0f, int stacks = 16,
   }
 
   sphere.setup(positions, colors, indices);
+
   return sphere;
 }

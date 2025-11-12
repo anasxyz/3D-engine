@@ -36,9 +36,9 @@ void main() {
   vec3 specular = specularStrength * spec * lightColour;
 
 	// texture
-	vec4 texColour = texture(texSampler, fragTexCoord);
+	vec3 texColour = texture(texSampler, fragTexCoord).rgb;
 
 	// all together
-  vec3 phong_lighting = (ambient + diffuse + specular) * objectColour;
+  vec3 phong_lighting = (ambient + diffuse + specular) * texColour;
   outputColour = vec4(phong_lighting, 1.0);
 }

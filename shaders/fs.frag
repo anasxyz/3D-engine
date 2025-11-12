@@ -14,10 +14,12 @@ uniform float ambientStrength;
 uniform float specularStrength;
 uniform float shininess;
 
+uniform bool useTexture;
 uniform sampler2D texSampler;
 
 void main() {
-  vec3 objectColour = vec3(0.7, 0.7, 0.75);
+	vec3 objectColour = vec3(0.7, 0.7, 0.75);
+	vec3 baseColour = useTexture ? texture(texSampler, fragTexCoord).rgb : objectColour;
 
   vec3 N = normalize(fragNormal);
   vec3 L = normalize(lightPosition - fragPosition);
@@ -35,10 +37,7 @@ void main() {
   float spec = pow(max(dot(V, R), 0.0), shininess);
   vec3 specular = specularStrength * spec * lightColour;
 
-	// texture
-	vec3 texColour = texture(texSampler, fragTexCoord).rgb;
-
 	// all together
-  vec3 phong_lighting = (ambient + diffuse + specular) * texColour;
-  outputColour = vec4(phong_lighting, 1.0);
+  vec3 phong = (ambient + diffuse + specular) * baseColour;
+  outputColour = vec4(phong, 1.0);
 }

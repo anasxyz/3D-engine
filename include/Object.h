@@ -8,6 +8,7 @@ public:
   std::string name;
   Mesh mesh;
   Transform transform;
+	GLuint textureId = 0;
 
   Object(const std::string &name, const Mesh &mesh)
       : name(name), mesh(mesh) {}

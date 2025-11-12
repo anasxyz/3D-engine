@@ -15,8 +15,8 @@ using namespace std;
 GLuint program;
 GLuint modelId, viewId, projectionId;
 GLuint lightPositionId, viewPositionId, lightColourId, ambientStrengthId,
-    specularStrengthId, shininessId, texSamplerId;
-GLuint crateTex;
+    specularStrengthId, shininessId;
+GLuint crateTex, useTextureId, texSamplerId;
 
 GLWrapper *glw;
 int windowWidth = 1024, windowHeight = 768;
@@ -106,14 +106,25 @@ void render() {
   glBindTexture(GL_TEXTURE_2D, crateTex);
   glUniform1i(texSamplerId, 0);
 
-  // animate rotation
   for (auto &obj : scene.objects) {
+    // set model matrix
+    glUniformMatrix4fv(modelId, 1, GL_FALSE, &obj->transform.getMatrix()[0][0]);
+
+    // bind object texture if it exists
+    if (obj->textureId != 0) {
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, obj->textureId);
+      glUniform1i(texSamplerId, 0);
+      glUniform1i(useTextureId, 1);
+    } else {
+      glUniform1i(useTextureId, 0);
+    }
+
     obj->transform.rotation.x += rotSpeedX;
     obj->transform.rotation.y += rotSpeedY;
-  }
 
-  // draw all objects
-  scene.draw(modelId);
+    obj->mesh.draw();
+  }
 
   glUseProgram(0);
 
@@ -167,6 +178,7 @@ void init() {
   specularStrengthId = glGetUniformLocation(program, "specularStrength");
   shininessId = glGetUniformLocation(program, "shininess");
 
+  useTextureId = glGetUniformLocation(program, "useTexture");
   texSamplerId = glGetUniformLocation(program, "texSampler");
 
   // create cube meshes
@@ -175,12 +187,13 @@ void init() {
   Mesh torusMesh = createTorus();
 
   crateTex = loadTexture("assets/texture/crate.png");
-	std::cout << "crateTex: " << crateTex << std::endl;
+  std::cout << "crateTex: " << crateTex << std::endl;
 
   // create scene objects
   auto cube1 = scene.createObject("Cube1", cubeMesh);
   cube1->transform.position = vec3(0.0f, 0.0f, -2.0f);
   cube1->transform.scale = vec3(0.5f, 0.3f, 0.5f);
+  cube1->textureId = crateTex;
 
   auto torus1 = scene.createObject("Torus1", torusMesh);
   torus1->transform.position = vec3(2.0f, 1.0f, -4.0f);

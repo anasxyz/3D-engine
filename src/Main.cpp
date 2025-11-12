@@ -1,3 +1,6 @@
+#define STB_IMAGE_IMPLEMENTATION
+#include "../include/stb/stb_image.h"
+
 #include "../include/GLFW/wrapper_glfw.h"
 #include "../include/MeshFactory.h"
 #include "../include/Scene.h"
@@ -10,8 +13,10 @@ using namespace glm;
 using namespace std;
 
 GLuint program;
-GLuint modelId, viewId, projectionId, lightPositionId, viewPositionId,
-    lightColourId, ambientStrengthId, specularStrengthId, shininessId;
+GLuint modelId, viewId, projectionId;
+GLuint lightPositionId, viewPositionId, lightColourId, ambientStrengthId,
+    specularStrengthId, shininessId, texSamplerId;
+GLuint crateTex;
 
 GLWrapper *glw;
 int windowWidth = 1024, windowHeight = 768;
@@ -97,6 +102,10 @@ void render() {
   glUniform1f(shininessId, shininess);
   glUniform1f(specularStrengthId, specularStrength);
 
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, crateTex);
+  glUniform1i(texSamplerId, 0);
+
   // animate rotation
   for (auto &obj : scene.objects) {
     obj->transform.rotation.x += rotSpeedX;
@@ -109,6 +118,37 @@ void render() {
   glUseProgram(0);
 
   updateCamera();
+}
+
+GLuint loadTexture(const std::string &path) {
+  int width, height, nrChannels;
+  stbi_set_flip_vertically_on_load(true);
+  unsigned char *data =
+      stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+
+  if (!data) {
+    std::cerr << "Failed to load texture: " << path << std::endl;
+    return 0;
+  }
+
+  GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+
+  GLuint textureID;
+  glGenTextures(1, &textureID);
+  glBindTexture(GL_TEXTURE_2D, textureID);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
+               GL_UNSIGNED_BYTE, data);
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                  GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  stbi_image_free(data);
+  return textureID;
 }
 
 void init() {
@@ -127,10 +167,15 @@ void init() {
   specularStrengthId = glGetUniformLocation(program, "specularStrength");
   shininessId = glGetUniformLocation(program, "shininess");
 
+  texSamplerId = glGetUniformLocation(program, "texSampler");
+
   // create cube meshes
   Mesh cubeMesh = createCube();
   Mesh sphereMesh = createSphere();
   Mesh torusMesh = createTorus();
+
+  crateTex = loadTexture("assets/texture/crate.png");
+	std::cout << "crateTex: " << crateTex << std::endl;
 
   // create scene objects
   auto cube1 = scene.createObject("Cube1", cubeMesh);

@@ -54,6 +54,19 @@ inline Mesh createCube(float size = 1.0f) {
   for (int i = 0; i < 4; ++i)
     normals.insert(normals.end(), {0, -1, 0});
 
+  std::vector<GLfloat> texCoords = {// back
+                                    0, 0, 1, 0, 1, 1, 0, 1,
+                                    // front
+                                    0, 0, 1, 0, 1, 1, 0, 1,
+                                    // left
+                                    0, 0, 1, 0, 1, 1, 0, 1,
+                                    // right
+                                    0, 0, 1, 0, 1, 1, 0, 1,
+                                    // top
+                                    0, 0, 1, 0, 1, 1, 0, 1,
+                                    // bottom
+                                    0, 0, 1, 0, 1, 1, 0, 1};
+
   std::vector<GLuint> indices = {
       0,  1,  2,  2,  3,  0,  // back
       4,  5,  6,  6,  7,  4,  // front
@@ -63,7 +76,7 @@ inline Mesh createCube(float size = 1.0f) {
       20, 21, 22, 22, 23, 20  // bottom
   };
 
-  cube.setup(positions, colors, normals, indices);
+  cube.setup(positions, colors, normals, indices, &texCoords);
   return cube;
 }
 

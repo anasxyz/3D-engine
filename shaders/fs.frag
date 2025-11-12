@@ -3,6 +3,7 @@
 in vec3 fragPosition;
 in vec3 fragNormal;
 in vec4 fragColour;
+in vec2 fragTexCoord;
 
 out vec4 outputColour;
 
@@ -12,6 +13,8 @@ uniform vec3 lightColour;
 uniform float ambientStrength;
 uniform float specularStrength;
 uniform float shininess;
+
+uniform sampler2D texSampler;
 
 void main() {
   vec3 objectColour = vec3(0.7, 0.7, 0.75);
@@ -32,7 +35,10 @@ void main() {
   float spec = pow(max(dot(V, R), 0.0), shininess);
   vec3 specular = specularStrength * spec * lightColour;
 
+	// texture
+	vec4 texColour = texture(texSampler, fragTexCoord);
+
 	// all together
-  vec3 result = (ambient + diffuse + specular) * objectColour;
-  outputColour = vec4(result, 1.0);
+  vec3 phong_lighting = (ambient + diffuse + specular) * objectColour;
+  outputColour = vec4(phong_lighting, 1.0);
 }

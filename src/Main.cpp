@@ -16,7 +16,7 @@ GLuint program;
 GLuint modelId, viewId, projectionId;
 GLuint lightPositionId, viewPositionId, lightColourId, ambientStrengthId,
     specularStrengthId, shininessId;
-GLuint crateTex, useTextureId, texSamplerId;
+GLuint crateTex, globeTex, useTextureId, texSamplerId;
 
 GLWrapper *glw;
 int windowWidth = 1024, windowHeight = 768;
@@ -102,10 +102,6 @@ void render() {
   glUniform1f(shininessId, shininess);
   glUniform1f(specularStrengthId, specularStrength);
 
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, crateTex);
-  glUniform1i(texSamplerId, 0);
-
   for (auto &obj : scene.objects) {
     // set model matrix
     glUniformMatrix4fv(modelId, 1, GL_FALSE, &obj->transform.getMatrix()[0][0]);
@@ -188,6 +184,8 @@ void init() {
 
   crateTex = loadTexture("assets/texture/crate.png");
   std::cout << "crateTex: " << crateTex << std::endl;
+	globeTex = loadTexture("assets/texture/globe.jpg");
+	std::cout << "globeTex: " << globeTex << std::endl;
 
   // create scene objects
   auto cube1 = scene.createObject("Cube1", cubeMesh);
@@ -198,10 +196,12 @@ void init() {
   auto torus1 = scene.createObject("Torus1", torusMesh);
   torus1->transform.position = vec3(2.0f, 1.0f, -4.0f);
   torus1->transform.scale = vec3(0.5f);
+	torus1->textureId = crateTex;
 
   auto sphere1 = scene.createObject("Sphere1", sphereMesh);
   sphere1->transform.position = vec3(-2.0f, -1.0f, -3.0f);
   sphere1->transform.scale = vec3(0.8f);
+	sphere1->textureId = globeTex;
 }
 
 int main() {

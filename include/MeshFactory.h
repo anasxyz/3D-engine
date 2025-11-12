@@ -92,16 +92,16 @@ inline Mesh createSphere(float radius = 1.0f, int stacks = 32,
   std::vector<GLfloat> positions;
   std::vector<GLfloat> colors;
   std::vector<GLfloat> normals;
+  std::vector<GLfloat> texCoords;
   std::vector<GLuint> indices;
 
   for (int i = 0; i <= stacks; ++i) {
     float v = (float)i / (float)stacks;
     float phi = glm::pi<float>() * v;
-
     float sinPhi = sin(phi);
     float cosPhi = cos(phi);
 
-    for (int j = 0; j < slices; ++j) {
+    for (int j = 0; j <= slices; ++j) {
       float u = (float)j / (float)slices;
       float theta = glm::two_pi<float>() * u;
 
@@ -121,42 +121,37 @@ inline Mesh createSphere(float radius = 1.0f, int stacks = 32,
       normals.push_back(n.y);
       normals.push_back(n.z);
 
-      // color
-      // derived from normal which should be continous across the seam now (i
-      // think)
+      // color (based on normal)
       glm::vec3 color = (n * 0.5f) + glm::vec3(0.5f);
       colors.push_back(color.r);
       colors.push_back(color.g);
       colors.push_back(color.b);
       colors.push_back(1.0f);
+
+      // texture coordinates
+      texCoords.push_back(u); // u corresponds to longitude
+      texCoords.push_back(
+          1.0f - v); // v corresponds to latitude, flip for correct orientation
     }
   }
 
-  // incides
-  // use modulo to wrap around the longitude seam properly
+  // indices
   for (int i = 0; i < stacks; ++i) {
     for (int j = 0; j < slices; ++j) {
-      int nextJ = (j + 1) % slices;
+      int first = i * (slices + 1) + j;
+      int second = first + slices + 1;
 
-      GLuint first = (GLuint)(i * slices + j);
-      GLuint second = (GLuint)((i + 1) * slices + j);
-      GLuint firstNext = (GLuint)(i * slices + nextJ);
-      GLuint secondNext = (GLuint)((i + 1) * slices + nextJ);
-
-      // triangle 1
       indices.push_back(first);
       indices.push_back(second);
-      indices.push_back(firstNext);
+      indices.push_back(first + 1);
 
-      // triangle 2
       indices.push_back(second);
-      indices.push_back(secondNext);
-      indices.push_back(firstNext);
+      indices.push_back(second + 1);
+      indices.push_back(first + 1);
     }
   }
 
-  sphere.setup(positions, colors, normals, indices);
-
+  sphere.setup(positions, colors, normals, indices, &texCoords);
   return sphere;
 }
 
@@ -167,6 +162,7 @@ inline Mesh createTorus(float majorRadius = 1.0f, float minorRadius = 0.5f,
   std::vector<GLfloat> positions;
   std::vector<GLfloat> normals;
   std::vector<GLfloat> colors;
+  std::vector<GLfloat> texCoords;
   std::vector<GLuint> indices;
 
   for (int i = 0; i <= majorSegments; ++i) {
@@ -203,6 +199,10 @@ inline Mesh createTorus(float majorRadius = 1.0f, float minorRadius = 0.5f,
       colors.push_back(1.0f);
       colors.push_back(1.0f);
       colors.push_back(1.0f);
+
+      // texture coordinates
+      texCoords.push_back(u); // around major circle
+      texCoords.push_back(v); // around minor circle
     }
   }
 
@@ -222,6 +222,6 @@ inline Mesh createTorus(float majorRadius = 1.0f, float minorRadius = 0.5f,
     }
   }
 
-  torus.setup(positions, colors, normals, indices);
+  torus.setup(positions, colors, normals, indices, &texCoords);
   return torus;
 }

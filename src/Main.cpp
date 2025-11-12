@@ -125,14 +125,15 @@ void init() {
   // create cube meshes
   Mesh cubeMesh = createCube();
   Mesh sphereMesh = createSphere();
+	Mesh torusMesh = createTorus();
 
   // create scene objects
   auto cube1 = scene.createObject("Cube1", cubeMesh);
   cube1->transform.position = vec3(0.0f, 0.0f, -2.0f);
 
-  auto cube2 = scene.createObject("Cube2", cubeMesh);
-  cube2->transform.position = vec3(2.0f, 1.0f, -4.0f);
-  cube2->transform.scale = vec3(0.5f);
+  auto torus1 = scene.createObject("Torus1", torusMesh);
+  torus1->transform.position = vec3(2.0f, 1.0f, -4.0f);
+  torus1->transform.scale = vec3(0.5f);
 
   auto sphere1 = scene.createObject("Sphere1", sphereMesh);
   sphere1->transform.position = vec3(-2.0f, -1.0f, -3.0f);

@@ -1,9 +1,7 @@
-#define STB_IMAGE_IMPLEMENTATION
-#include "../include/stb/stb_image.h"
-
 #include "../include/GLFW/wrapper_glfw.h"
 #include "../include/MeshFactory.h"
 #include "../include/Scene.h"
+#include "../include/TextureLoader.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -14,9 +12,12 @@ using namespace std;
 
 GLuint program;
 GLuint modelId, viewId, projectionId;
+
 GLuint lightPositionId, viewPositionId, lightColourId, ambientStrengthId,
     specularStrengthId, shininessId;
-GLuint crateTex, globeTex, useTextureId, texSamplerId;
+
+GLuint useTextureId, texSamplerId;
+GLuint crateTex, globeTex, donutTex;
 
 GLWrapper *glw;
 int windowWidth = 1024, windowHeight = 768;
@@ -29,7 +30,7 @@ float camYaw = -90.0f;
 float camPitch = 0.0f;
 
 // lighting
-vec3 lightPosition(60.0f, 2.0f, 2.0f);
+vec3 lightPosition(10.0f, 2.0f, 2.0f);
 vec3 lightColour(1.0f, 1.0f, 1.0f); // white
 float ambientStrength = 0.1f;
 float shininess = 8.0f;
@@ -39,8 +40,8 @@ float specularStrength = 0.1f;
 Scene scene;
 
 // rotation speeds
-float rotSpeedX = 0.0003f;
-float rotSpeedY = 0.0003f;
+float rotSpeedX = 0.01f;
+float rotSpeedY = 0.01f;
 
 void updateCamera() {
   GLFWwindow *window = glw->window();
@@ -75,6 +76,19 @@ void updateCamera() {
     cameraPos -= normalize(cross(cameraFront, cameraUp)) * moveSpeed;
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     cameraPos += normalize(cross(cameraFront, cameraUp)) * moveSpeed;
+}
+
+void updateObjectMovement(Object &obj) {
+  GLFWwindow *window = glw->window();
+
+	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
+		obj.transform.rotation.x += rotSpeedX;
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+		obj.transform.rotation.x -= rotSpeedX;
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+		obj.transform.rotation.y += rotSpeedY;
+	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+		obj.transform.rotation.y -= rotSpeedY;
 }
 
 void render() {
@@ -126,38 +140,6 @@ void render() {
 
   updateCamera();
 }
-
-GLuint loadTexture(const std::string &path) {
-  int width, height, nrChannels;
-  stbi_set_flip_vertically_on_load(true);
-  unsigned char *data =
-      stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
-
-  if (!data) {
-    std::cerr << "Failed to load texture: " << path << std::endl;
-    return 0;
-  }
-
-  GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
-
-  GLuint textureID;
-  glGenTextures(1, &textureID);
-  glBindTexture(GL_TEXTURE_2D, textureID);
-
-  glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-               GL_UNSIGNED_BYTE, data);
-  glGenerateMipmap(GL_TEXTURE_2D);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  stbi_image_free(data);
-  return textureID;
-}
-
 void init() {
   // load shaders
   program = glw->loadShader("shaders/vs.vert", "shaders/fs.frag");
@@ -182,10 +164,12 @@ void init() {
   Mesh sphereMesh = createSphere();
   Mesh torusMesh = createTorus();
 
-  crateTex = loadTexture("assets/textures/crate.png");
+  crateTex = TextureLoader::loadTexture("assets/textures/crate.png");
   std::cout << "crateTex: " << crateTex << std::endl;
-	globeTex = loadTexture("assets/textures/globe.jpg");
+	globeTex = TextureLoader::loadTexture("assets/textures/globe.jpg");
 	std::cout << "globeTex: " << globeTex << std::endl;
+	donutTex = TextureLoader::loadTexture("assets/textures/donut3.jpg");
+	std::cout << "donutTex: " << donutTex << std::endl;
 
   // create scene objects
   auto cube1 = scene.createObject("Cube1", cubeMesh);
@@ -196,7 +180,7 @@ void init() {
   auto torus1 = scene.createObject("Torus1", torusMesh);
   torus1->transform.position = vec3(2.0f, 1.0f, -4.0f);
   torus1->transform.scale = vec3(0.5f);
-	torus1->textureId = crateTex;
+	torus1->textureId = donutTex;
 
   auto sphere1 = scene.createObject("Sphere1", sphereMesh);
   sphere1->transform.position = vec3(-2.0f, -1.0f, -3.0f);

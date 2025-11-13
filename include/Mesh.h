@@ -19,15 +19,6 @@ public:
 
   Mesh() = default;
 
-  ~Mesh() {
-    glDeleteBuffers(1, &vboPositions);
-    glDeleteBuffers(1, &vboColours);
-    glDeleteBuffers(1, &vboNormals);
-    glDeleteBuffers(1, &vboTexCoords);
-    glDeleteBuffers(1, &eboIndices);
-    glDeleteVertexArrays(1, &vao);
-  }
-
   void setup(std::vector<GLfloat> &positions, std::vector<GLfloat> &colours,
              std::vector<GLfloat> &normals, std::vector<GLuint> &indices,
              std::vector<GLfloat> *texCoords = nullptr) {

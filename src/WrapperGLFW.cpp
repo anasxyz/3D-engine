@@ -1,4 +1,4 @@
-#include "../include/GLFW/wrapper_glfw.h"
+#include "../include/GLFW/WrapperGLFW.h"
 #include <fstream>
 #include <iostream>
 #include <stdexcept>

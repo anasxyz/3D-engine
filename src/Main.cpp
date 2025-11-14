@@ -5,7 +5,7 @@
 #include "../include/glad/glad.h"
 
 #include "../include/Camera.h"
-#include "../include/GLFW/wrapper_glfw.h"
+#include "../include/GLFW/WrapperGLFW.h"
 #include "../include/MeshFactory.h"
 #include "../include/Scene.h"
 #include "../include/TextureLoader.h"

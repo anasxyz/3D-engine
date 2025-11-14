@@ -57,6 +57,7 @@ dist-win: win
 	cp $(WIN_OUT) $(DIST_WIN)/
 	cp -r assets $(DIST_WIN)/
 	cp -r shaders $(DIST_WIN)/
+	cp -r lib/win/* $(DIST_WIN)/
 
 # combined dist target
 dist: dist-linux dist-win

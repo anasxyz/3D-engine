@@ -1,6 +1,8 @@
 #pragma once
 #include "Mesh.h"
 
+// TODO: again should be refactored to implement packed vertices aand whatever
+// else is new in Mesh class
 inline Mesh createCube(float size = 1.0f) {
   Mesh cube;
   float s = size / 2.0f;
@@ -129,9 +131,9 @@ inline Mesh createSphere(float radius = 1.0f, int stacks = 32,
       colors.push_back(1.0f);
 
       // texture coordinates
-      texCoords.push_back(u); // u corresponds to longitude
+      texCoords.push_back(u);
       texCoords.push_back(
-          1.0f - v); // v corresponds to latitude, flip for correct orientation
+          1.0f - v);
     }
   }
 

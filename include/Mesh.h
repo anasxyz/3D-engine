@@ -7,6 +7,8 @@
 
 using namespace glm;
 
+// TODO: i want to completely refactor this to implement packed vertices,
+// interleaved vertices, etc
 class Mesh {
 public:
   GLuint vao;

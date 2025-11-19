@@ -25,7 +25,9 @@ GLuint lightPositionId, viewPositionId, lightColourId, ambientStrengthId,
     specularStrengthId, shininessId;
 
 GLuint useTextureId, texSamplerId;
-GLuint crateTex, earthTex, donutTex, venusTex;
+GLuint crateTex, donutTex;
+GLuint mercuryTex, venusTex, earthTex, marsTex, jupiterTex, saturnTex,
+    uranusTex, neptuneTex, plutoTex;
 
 // controls
 // TODO: move this stuff to it's own separate area
@@ -264,13 +266,17 @@ void init() {
 
   // load textures
   crateTex = TextureLoader::loadTexture("crate.png");
-  // cout << "crateTex: " << crateTex << endl;
-  earthTex = TextureLoader::loadTexture("earth_diffuse.jpg");
-  // cout << "earthTex: " << earthTex << endl;
   donutTex = TextureLoader::loadTexture("donut3.jpg");
-  // cout << "donutTex: " << donutTex << endl;
-  venusTex = TextureLoader::loadTexture("venus_diffuse.png");
-  // cout << "venusTex: " << uranusTex << endl;
+
+	// mercuryTex = TextureLoader::loadTexture("mercury_diffuse.jpg");
+  // venusTex = TextureLoader::loadTexture("venus_diffuse.png");
+  earthTex = TextureLoader::loadTexture("earth_diffuse.jpg");
+	// marsTex = TextureLoader::loadTexture("mars_diffuse.jpg");
+	// jupiterTex = TextureLoader::loadTexture("jupiter_diffuse.jpg");
+	// saturnTex = TextureLoader::loadTexture("saturn_diffuse.jpg");
+	// uranusTex = TextureLoader::loadTexture("uranus_diffuse.jpg");
+	// neptuneTex = TextureLoader::loadTexture("neptune_diffuse.jpg");
+	// plutoTex = TextureLoader::loadTexture("pluto_diffuse.jpg");
 
   // create scene objects
   auto cube1 = scene.createObject("Cube1", cubeMesh);

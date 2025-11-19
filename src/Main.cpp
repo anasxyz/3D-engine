@@ -258,7 +258,7 @@ void init() {
   Mesh cubeMesh = createCube();
   Mesh sphereMesh = createSphere();
   Mesh torusMesh = createTorus();
-  Mesh carMesh = ObjectLoader::loadOBJModel("Car.obj",
+  Mesh carMesh = ObjectLoader::loadOBJModel("Chevrolet_Camaro_SS_High.obj",
                                             vec4(0.7f, 0.7f, 0.75f, 1.0f));
 
   // load textures

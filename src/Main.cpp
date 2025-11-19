@@ -260,8 +260,11 @@ void init() {
 
   // load textures
   crateTex = TextureLoader::loadTexture("assets/textures/crate.png");
+	cout << "crateTex: " << crateTex << endl;
   globeTex = TextureLoader::loadTexture("assets/textures/globe.jpg");
+	cout << "globeTex: " << globeTex << endl;
   donutTex = TextureLoader::loadTexture("assets/textures/donut3.jpg");
+	cout << "donutTex: " << donutTex << endl;
 
   // create scene objects
   auto cube1 = scene.createObject("Cube1", cubeMesh);

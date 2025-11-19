@@ -13,7 +13,6 @@ public:
   GLuint indexCount = 0;
 
   Mesh() = default;
-  ~Mesh();
 
   void setup(const std::vector<Vertex> &vertices,
              const std::vector<GLuint> &indices);

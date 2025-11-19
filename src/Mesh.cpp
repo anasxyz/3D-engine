@@ -1,14 +1,5 @@
 #include "../include/Mesh.h"
 
-Mesh::~Mesh() {
-  if (vbo)
-    glDeleteBuffers(1, &vbo);
-  if (ebo)
-    glDeleteBuffers(1, &ebo);
-  if (vao)
-    glDeleteVertexArrays(1, &vao);
-}
-
 void Mesh::setup(const std::vector<Vertex> &vertices,
                  const std::vector<GLuint> &indices) {
   indexCount = static_cast<GLuint>(indices.size());
@@ -34,14 +25,19 @@ void Mesh::setup(const std::vector<Vertex> &vertices,
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                         (void *)offsetof(Vertex, position));
 
-  // normal: location 1
+  // colour (location = 1)
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                        (void *)offsetof(Vertex, colour));
+
+  // normal: location 1
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                         (void *)offsetof(Vertex, normal));
 
   // uv: location 2
-  glEnableVertexAttribArray(2);
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+  glEnableVertexAttribArray(3);
+  glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                         (void *)offsetof(Vertex, uv));
 
   glBindVertexArray(0);

@@ -204,8 +204,8 @@ void render() {
     }
 
     // rotate object
-    obj->transform.rotation.x += rotSpeed * deltaTime;
-    obj->transform.rotation.y += rotSpeed * deltaTime;
+    // obj->transform.rotation.x += rotSpeed * deltaTime;
+    // obj->transform.rotation.y += rotSpeed * deltaTime;
 
     // draw object mesh
     obj->mesh.draw();
@@ -258,15 +258,15 @@ void init() {
   Mesh cubeMesh = createCube();
   Mesh sphereMesh = createSphere();
   Mesh torusMesh = createTorus();
-  Mesh carMesh = ObjectLoader::loadOBJModel("Chevrolet_Camaro_SS_High.obj",
+  Mesh carMesh = ObjectLoader::loadOBJModel("Car2.obj",
                                             vec4(0.7f, 0.7f, 0.75f, 1.0f));
 
   // load textures
-  crateTex = TextureLoader::loadTexture("assets/textures/crate.png");
+  crateTex = TextureLoader::loadTexture("crate.png");
   // cout << "crateTex: " << crateTex << endl;
-  globeTex = TextureLoader::loadTexture("assets/textures/globe.jpg");
+  globeTex = TextureLoader::loadTexture("globe.jpg");
   // cout << "globeTex: " << globeTex << endl;
-  donutTex = TextureLoader::loadTexture("assets/textures/donut3.jpg");
+  donutTex = TextureLoader::loadTexture("donut3.jpg");
   // cout << "donutTex: " << donutTex << endl;
 
   // create scene objects

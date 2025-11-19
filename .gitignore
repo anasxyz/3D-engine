@@ -3,7 +3,10 @@
 
 app
 *.o
+
 *.obj
+*.mtl
+
 *.exe
 *.out
 

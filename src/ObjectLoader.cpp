@@ -116,5 +116,8 @@ Mesh ObjectLoader::loadOBJModel(
 
   Mesh mesh;
   mesh.setup(vertices, indices);
+
+	std::cout << "Loaded object: " << objPath << std::endl;
+
   return mesh;
 }

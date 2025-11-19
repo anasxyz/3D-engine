@@ -25,7 +25,7 @@ GLuint lightPositionId, viewPositionId, lightColourId, ambientStrengthId,
     specularStrengthId, shininessId;
 
 GLuint useTextureId, texSamplerId;
-GLuint crateTex, globeTex, donutTex;
+GLuint crateTex, earthTex, donutTex, venusTex;
 
 // controls
 // TODO: move this stuff to it's own separate area
@@ -57,7 +57,7 @@ float specularStrength = 0.1f;
 Scene scene;
 
 // rotation speeds
-float rotSpeed = 0.5f;
+float rotSpeed = 0.2f;
 
 void updateObjectMovement(Object &obj) {
   GLFWwindow *window = glw->window();
@@ -142,7 +142,7 @@ void render() {
 
     ImGui::Text("Camera Controls:");
     ImGui::Text("WASD: move forward/backward/left/right");
-		ImGui::Text("Space / Left Shift: move up/down");
+    ImGui::Text("Space / Left Shift: move up/down");
     ImGui::Text("Arrow keys: look around");
 
     ImGui::Dummy(ImVec2(0.0f, 10.0f));
@@ -204,9 +204,9 @@ void render() {
       glUniform1i(useTextureId, 0);
     }
 
-    // rotate object
-    // obj->transform.rotation.x += rotSpeed * deltaTime;
-    // obj->transform.rotation.y += rotSpeed * deltaTime;
+    // rotate objects
+    obj->transform.rotation.y += rotSpeed * deltaTime; 
+    obj->transform.rotation.x += rotSpeed * 0.1f * deltaTime;
 
     // draw object mesh
     obj->mesh.draw();
@@ -259,16 +259,18 @@ void init() {
   Mesh cubeMesh = createCube();
   Mesh sphereMesh = createSphere();
   Mesh torusMesh = createTorus();
-  Mesh carMesh = ObjectLoader::loadOBJModel("Car.obj",
-                                            vec4(0.7f, 0.7f, 0.75f, 1.0f));
+  Mesh carMesh =
+      ObjectLoader::loadOBJModel("venus.obj", vec4(0.7f, 0.7f, 0.75f, 1.0f));
 
   // load textures
   crateTex = TextureLoader::loadTexture("crate.png");
   // cout << "crateTex: " << crateTex << endl;
-  globeTex = TextureLoader::loadTexture("globe.jpg");
-  // cout << "globeTex: " << globeTex << endl;
+  earthTex = TextureLoader::loadTexture("earth_diffuse.jpg");
+  // cout << "earthTex: " << earthTex << endl;
   donutTex = TextureLoader::loadTexture("donut3.jpg");
   // cout << "donutTex: " << donutTex << endl;
+  venusTex = TextureLoader::loadTexture("venus_diffuse.png");
+  // cout << "venusTex: " << uranusTex << endl;
 
   // create scene objects
   auto cube1 = scene.createObject("Cube1", cubeMesh);
@@ -283,10 +285,11 @@ void init() {
   auto sphere1 = scene.createObject("Sphere1", sphereMesh);
   sphere1->transform.position = vec3(-2.0f, -1.0f, -3.0f);
   sphere1->transform.scale = vec3(0.8f);
-  sphere1->textureId = globeTex;
+  sphere1->textureId = earthTex;
 
   auto obj = scene.createObject("Car1", carMesh);
   obj->transform.position = vec3(0.0f, 0.0f, -10.0f);
+  obj->textureId = venusTex;
 }
 
 int main() {

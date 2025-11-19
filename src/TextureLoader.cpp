@@ -37,6 +37,9 @@ GLuint TextureLoader::loadTexture(const std::string &texPath) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   stbi_image_free(data);
+
+	std::cout << "Loaded texture: " << path << std::endl;
+
   return textureID;
 }
 

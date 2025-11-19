@@ -262,10 +262,6 @@ void init() {
   Mesh sphereMesh = createSphere();
   Mesh torusMesh = createTorus();
 
-  // load external .obj model
-	Mesh carMesh = ObjectLoader::loadOBJModel("Car.obj", vec4(0.0f, 0.0f, 0.0f, 1.0f));
-	Mesh eyeMesh = ObjectLoader::loadOBJModel("eyeball.obj", vec4(0.0f, 0.0f, 1.0f, 1.0f));
-
   // load textures
   crateTex = TextureLoader::loadTexture("crate.png");
   donutTex = TextureLoader::loadTexture("donut3.jpg");
@@ -295,10 +291,9 @@ void init() {
   sphere1->transform.scale = vec3(0.8f);
   sphere1->textureId = earthTex;
 
-	auto car = scene.createObject("car", carMesh);
+	auto car = ObjectLoader::loadOBJObject("Car.obj", vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	scene.addObject(car);
 	car->transform.position = vec3(10.0f, 0.0f, -10.0f);
-
-
 }
 
 int main() {

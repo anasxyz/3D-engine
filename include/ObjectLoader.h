@@ -1,10 +1,11 @@
 #pragma once
-#include "Mesh.h"
+#include "Object.h"
 #include <string>
+#include <memory>
 
 using namespace glm;
 
 class ObjectLoader {
 public:
-  static Mesh loadOBJModel(const std::string &objectFilename, const vec4 &defaultColour);
+  static std::shared_ptr<Object> loadOBJObject(const std::string &filename, const vec4 &defaultColour);
 };

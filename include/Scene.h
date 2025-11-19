@@ -13,6 +13,10 @@ public:
         return obj;
     }
 
+		void addObject(const std::shared_ptr<Object>& obj) {
+			objects.push_back(obj);
+		}
+
     void draw(GLuint modelUniform) {
         for (auto& obj : objects)
             obj->draw(modelUniform);

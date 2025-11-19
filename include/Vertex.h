@@ -11,6 +11,7 @@ struct Vertex {
   vec3 normal;
   vec2 uv;
 
+  Vertex() = default;
   Vertex(glm::vec3 p, glm::vec3 n, glm::vec2 t)
       : position(p), colour(1.0f, 1.0f, 1.0f, 1.0f), normal(n), uv(t) {}
 };

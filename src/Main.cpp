@@ -7,6 +7,7 @@
 #include "../include/Camera.h"
 #include "../include/GLFW/WrapperGLFW.h"
 #include "../include/MeshFactory.h"
+#include "../include/ObjectLoader.h"
 #include "../include/Scene.h"
 #include "../include/TextureLoader.h"
 
@@ -257,14 +258,16 @@ void init() {
   Mesh cubeMesh = createCube();
   Mesh sphereMesh = createSphere();
   Mesh torusMesh = createTorus();
+  Mesh carMesh = ObjectLoader::loadOBJModel("Car.obj",
+                                            vec4(0.7f, 0.7f, 0.75f, 1.0f));
 
   // load textures
   crateTex = TextureLoader::loadTexture("assets/textures/crate.png");
-	cout << "crateTex: " << crateTex << endl;
+  // cout << "crateTex: " << crateTex << endl;
   globeTex = TextureLoader::loadTexture("assets/textures/globe.jpg");
-	cout << "globeTex: " << globeTex << endl;
+  // cout << "globeTex: " << globeTex << endl;
   donutTex = TextureLoader::loadTexture("assets/textures/donut3.jpg");
-	cout << "donutTex: " << donutTex << endl;
+  // cout << "donutTex: " << donutTex << endl;
 
   // create scene objects
   auto cube1 = scene.createObject("Cube1", cubeMesh);
@@ -280,6 +283,9 @@ void init() {
   sphere1->transform.position = vec3(-2.0f, -1.0f, -3.0f);
   sphere1->transform.scale = vec3(0.8f);
   sphere1->textureId = globeTex;
+
+  auto obj = scene.createObject("Car1", carMesh);
+  obj->transform.position = vec3(0.0f, 0.0f, -10.0f);
 }
 
 int main() {

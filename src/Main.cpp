@@ -10,6 +10,7 @@
 #include "../include/ObjectLoader.h"
 #include "../include/Scene.h"
 #include "../include/TextureLoader.h"
+#include "../include/Skybox.h"
 
 #include "../external/imgui/imgui.h"
 #include "../external/imgui/imgui_impl_glfw.h"
@@ -28,11 +29,6 @@ GLuint useTextureId, texSamplerId;
 GLuint crateTex, donutTex;
 GLuint mercuryTex, venusTex, earthTex, marsTex, jupiterTex, saturnTex,
     uranusTex, neptuneTex, plutoTex;
-
-GLuint skyboxProgram;
-GLuint skyboxViewId, skyboxProjectionId, skyboxSamplerId;
-Mesh skyboxCubeMesh;
-GLuint cubemapTexture;
 
 // controls
 // TODO: move this stuff to it's own separate area
@@ -62,6 +58,8 @@ float specularStrength = 0.1f;
 
 // scene
 Scene scene;
+// skybox
+Skybox* skybox;
 
 // rotation speeds
 float rotSpeed = 0.2f;
@@ -176,19 +174,7 @@ void render() {
   camera.processCameraLook(window, deltaTime);
   glm::mat4 view = camera.getViewMatrix();
 
-	// skybox
-  // --------
-  glDepthFunc(GL_LEQUAL);
-  glUseProgram(skyboxProgram);
-  glm::mat4 viewNoTranslation = glm::mat4(glm::mat3(view));
-  glUniformMatrix4fv(skyboxViewId, 1, GL_FALSE, &viewNoTranslation[0][0]);
-  glUniformMatrix4fv(skyboxProjectionId, 1, GL_FALSE, &projection[0][0]);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-  glUniform1i(skyboxSamplerId, 0);
-  skyboxCubeMesh.draw();
-  glDepthFunc(GL_LESS);
-  // -------
+	skybox->render(view, projection);
 
   glUseProgram(program);
 
@@ -247,13 +233,6 @@ void init() {
 
   // load shaders
   program = glw->loadShader("shaders/vs.vert", "shaders/fs.frag");
-  skyboxProgram = glw->loadShader("shaders/skybox.vert", "shaders/skybox.frag");
-
-  skyboxViewId = glGetUniformLocation(skyboxProgram, "view");
-  skyboxProjectionId = glGetUniformLocation(skyboxProgram, "projection");
-  skyboxSamplerId = glGetUniformLocation(skyboxProgram, "skybox");
-
-  skyboxCubeMesh = createCube();
 
   std::vector<std::string> faces;
   faces.push_back("space2/px.png"); // +X
@@ -262,8 +241,8 @@ void init() {
   faces.push_back("space2/ny.png"); // -Y
   faces.push_back("space2/pz.png"); // +Z
   faces.push_back("space2/nz.png"); // -Z
-
-  cubemapTexture = TextureLoader::loadCubemap(faces);
+	
+	skybox = new Skybox(glw, faces);
 
   modelId = glGetUniformLocation(program, "model");
   viewId = glGetUniformLocation(program, "view");

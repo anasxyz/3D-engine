@@ -11,6 +11,14 @@
 - Modular code structure with clear separation of concerns using dedicated classes: Camera, Scene, Skybox, TextureManager, etc.
 - ImGui Integration for UI/Controls and FPS display.
 
+## Run:
+
+Distribution pakacges with pre-compiled executables / binaries are available at: 
+
+Linux: `dist/linux/app`
+
+Windows: `dist/win/app.exe`
+
 ## Install / Build:
 
 ### Linux:

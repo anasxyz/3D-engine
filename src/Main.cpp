@@ -45,13 +45,13 @@ GLWrapper *glw;
 int windowWidth = 1024, windowHeight = 768;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(vec3(50.0f, 0.0f, 50.0f));
 
 // lighting
-vec3 lightPosition(10.0f, 2.0f, 2.0f);
+vec3 lightPosition(0.0f, 0.0f, 0.0f);
 vec3 lightColour(1.0f, 1.0f, 1.0f); // white
 float ambientStrength = 0.1f;
-float shininess = 8.0f;
+float shininess = 100.0f;
 float specularStrength = 0.1f;
 
 // scene
@@ -114,9 +114,9 @@ void render() {
   hPressedLastFrame = hPressed;
 
   ui.beginFrame();
-  ui.renderFPS(fps);
+  ui.renderFPS(fps, showControls);
   ui.renderControls(showControls);
-  ui.endFrame();
+  ui.renderCameraInfo(camera.position, camera.yaw, camera.pitch);
 
   // clear background
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -127,7 +127,7 @@ void render() {
 
   float aspect = (float)windowWidth / (float)windowHeight;
   glm::mat4 projection =
-      glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
+      glm::perspective(glm::radians(45.0f), aspect, 0.1f, 1000.0f);
 
   camera.processCameraMovement(window, deltaTime);
   camera.processCameraLook(window, deltaTime);
@@ -169,21 +169,7 @@ void render() {
 
   updateObjectMovement(*scene.objects[0]);
 
-  ImGui::Render();
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void initImGui() {
-  IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
-  ImGuiIO &io = ImGui::GetIO();
-  (void)io;
-  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-  ImGui::StyleColorsDark();
-
-  ImGui_ImplGlfw_InitForOpenGL(glw->window(), true);
-  ImGui_ImplOpenGL3_Init("#version 420");
+  ui.endFrame();
 }
 
 void getUniformLocations() {
@@ -209,16 +195,16 @@ void init() {
   // load main shaders
   program = glw->loadShader("shaders/vs.vert", "shaders/fs.frag");
 
-	getUniformLocations();
+  getUniformLocations();
 
   // skybox
   std::vector<std::string> faces;
-  faces.push_back("space2/px.png"); // +X
-  faces.push_back("space2/nx.png"); // -X
-  faces.push_back("space2/py.png"); // +Y
-  faces.push_back("space2/ny.png"); // -Y
-  faces.push_back("space2/pz.png"); // +Z
-  faces.push_back("space2/nz.png"); // -Z
+  faces.push_back("space3/px.png"); // +X
+  faces.push_back("space3/nx.png"); // -X
+  faces.push_back("space3/py.png"); // +Y
+  faces.push_back("space3/ny.png"); // -Y
+  faces.push_back("space3/pz.png"); // +Z
+  faces.push_back("space3/nz.png"); // -Z
 
   skybox = new Skybox(glw, faces);
 
@@ -231,37 +217,94 @@ void init() {
   GLuint crateTex = gTextureManager.loadTexture("crate.png");
   GLuint donutTex = gTextureManager.loadTexture("donut3.jpg");
   GLuint earthTex = gTextureManager.loadTexture("planets/earth_diffuse.jpg");
-	GLuint mercuryTex = gTextureManager.loadTexture("mercury_diffuse.jpg");
-	GLuint venusTex = gTextureManager.loadTexture("planets/venus_diffuse.png");
-	GLuint marsTex = gTextureManager.loadTexture("mars_diffuse.jpg");
-	GLuint jupiterTex = gTextureManager.loadTexture("jupiter_diffuse.jpg");
-	GLuint saturnTex = gTextureManager.loadTexture("saturn_diffuse.jpg");
-	GLuint uranusTex = gTextureManager.loadTexture("uranus_diffuse.jpg");
-	GLuint neptuneTex = gTextureManager.loadTexture("neptune_diffuse.jpg");
-	GLuint plutoTex = gTextureManager.loadTexture("pluto_diffuse.jpg");
+  GLuint mercuryTex = gTextureManager.loadTexture("planets/mercury_diffuse.jpg");
+  GLuint venusTex = gTextureManager.loadTexture("planets/venus_diffuse.png");
+  GLuint marsTex = gTextureManager.loadTexture("planets/mars_diffuse.jpg");
+  GLuint jupiterTex = gTextureManager.loadTexture("planets/jupiter_diffuse.jpg");
+  GLuint saturnTex = gTextureManager.loadTexture("planets/saturn_diffuse.jpg");
+  GLuint uranusTex = gTextureManager.loadTexture("planets/uranus_diffuse.jpg");
+  GLuint neptuneTex = gTextureManager.loadTexture("planets/neptune_diffuse.jpg");
+  GLuint plutoTex = gTextureManager.loadTexture("planets/pluto_diffuse.jpg");
 
-	GLuint moonTex = gTextureManager.loadTexture("moon_diffuse.jpg");
-	GLuint sunTex = gTextureManager.loadTexture("sun_diffuse.jpg");
+  GLuint moonTex = gTextureManager.loadTexture("planets/moon_diffuse.jpg");
+  GLuint sunTex = gTextureManager.loadTexture("planets/sun_diffuse.jpg");
 
   // create scene objects
-  auto cube1 = scene.createObject("Cube1", cubeMesh);
-  cube1->transform.position = vec3(0.0f, 0.0f, -2.0f);
-  cube1->transform.scale = vec3(0.5f, 0.3f, 0.5f);
+  // auto cube1 = scene.createObject("Cube1", cubeMesh);
+  // cube1->transform.position = vec3(0.0f, 0.0f, -2.0f);
+  // cube1->transform.scale = vec3(0.5f, 0.3f, 0.5f);
 
-  auto torus1 = scene.createObject("Torus1", torusMesh);
-  torus1->transform.position = vec3(2.0f, 1.0f, -4.0f);
-  torus1->transform.scale = vec3(0.5f);
-  torus1->textureId = donutTex;
+  // auto torus1 = scene.createObject("Torus1", torusMesh);
+  // torus1->transform.position = vec3(2.0f, 1.0f, -4.0f);
+  // torus1->transform.scale = vec3(0.5f);
+  // torus1->textureId = donutTex;
 
-  auto sphere1 = scene.createObject("Sphere1", sphereMesh);
-  sphere1->transform.position = vec3(-2.0f, -1.0f, -3.0f);
-  sphere1->transform.scale = vec3(0.8f);
-  sphere1->textureId = earthTex;
+  // Set up the Sun (Center of the solar system, large size)
+  auto sun = scene.createObject("sun", sphereMesh);
+  sun->transform.position =
+      vec3(0.0f, 0.0f, 0.0f);        // Sun is at the origin (0, 0, 0)
+  sun->transform.scale = vec3(5.0f); // Make the sun significantly larger
+  sun->textureId = sunTex;
 
-  auto car =
-      ObjectLoader::loadOBJObject("Car.obj", vec4(0.0f, 0.0f, 0.0f, 1.0f));
-  scene.addObject(car);
-  car->transform.position = vec3(10.0f, 0.0f, -10.0f);
+  // --- Inner Planets (Rocky, relatively small and close) ---
+
+  auto mercury = scene.createObject("mercury", sphereMesh);
+  mercury->transform.position = vec3(6.0f, 0.0f, 0.0f); // Closer to the sun
+  mercury->transform.scale = vec3(0.2f);                // Smallest planet
+  mercury->textureId = mercuryTex;
+
+  auto venus = scene.createObject("venus", sphereMesh);
+  venus->transform.position = vec3(10.0f, 0.0f, 0.0f);
+  venus->transform.scale = vec3(0.4f);
+  venus->textureId = venusTex;
+
+  auto earth = scene.createObject("earth", sphereMesh);
+  earth->transform.position = vec3(14.0f, 0.0f, 0.0f);
+  earth->transform.scale = vec3(0.45f);
+  earth->textureId = earthTex;
+
+  auto mars = scene.createObject("mars", sphereMesh);
+  mars->transform.position = vec3(18.0f, 0.0f, 0.0f);
+  mars->transform.scale = vec3(0.3f);
+  mars->textureId = marsTex;
+
+  auto jupiter = scene.createObject("jupiter", sphereMesh);
+  jupiter->transform.position = vec3(35.0f, 0.0f, 0.0f);
+  jupiter->transform.scale = vec3(2.5f);
+  jupiter->textureId = jupiterTex;
+
+  auto saturn = scene.createObject("saturn", sphereMesh);
+  saturn->transform.position = vec3(55.0f, 0.0f, 0.0f);
+  saturn->transform.scale = vec3(2.2f);
+  saturn->textureId = saturnTex;
+
+  auto uranus = scene.createObject("uranus", sphereMesh);
+  uranus->transform.position = vec3(75.0f, 0.0f, 0.0f);
+  uranus->transform.scale = vec3(1.0f);
+  uranus->textureId = uranusTex;
+
+  auto neptune = scene.createObject("neptune", sphereMesh);
+  neptune->transform.position = vec3(95.0f, 0.0f, 0.0f);
+  neptune->transform.scale = vec3(1.0f);
+  neptune->textureId = neptuneTex;
+
+  auto pluto = scene.createObject("pluto", sphereMesh);
+  pluto->transform.position =
+      vec3(110.0f, 0.0f, 0.0f);
+              
+  pluto->transform.scale = vec3(0.1f); 
+  pluto->textureId = plutoTex;
+
+  auto moon = scene.createObject("moon", sphereMesh);
+  moon->transform.position =
+      vec3(14.5f, 0.0f, 0.0f);  
+  moon->transform.scale = vec3(0.08f);
+  moon->textureId = moonTex;
+
+  // auto car =
+  //    ObjectLoader::loadOBJObject("Car.obj", vec4(0.0f, 0.0f, 0.0f, 1.0f));
+  // scene.addObject(car);
+  // car->transform.position = vec3(10.0f, 0.0f, -10.0f);
 }
 
 int main() {

@@ -18,6 +18,17 @@ uniform bool useTexture;
 uniform sampler2D texSampler;
 
 void main() {
+	// if it's a light source just skip the lighting effects and display it with its true colour
+  if (isLightSource == 1) {
+    if (useTexture) {
+      outputColour = texture(texSampler, fragTexCoord)        
+	  } else {
+      outputColour = fragColour; 
+    }
+
+    return;
+  }
+
 	vec3 objectColour = fragColour.rgb;
 	vec3 baseColour = useTexture ? texture(texSampler, fragTexCoord).rgb : objectColour;
 

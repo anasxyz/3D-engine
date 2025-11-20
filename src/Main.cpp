@@ -10,8 +10,8 @@
 #include "../include/ObjectLoader.h"
 #include "../include/Scene.h"
 #include "../include/Skybox.h"
-#include "../include/UIManager.h"
 #include "../include/TextureManager.h"
+#include "../include/UIManager.h"
 
 #include "../external/imgui/imgui.h"
 #include "../external/imgui/imgui_impl_glfw.h"
@@ -27,9 +27,6 @@ GLuint lightPositionId, viewPositionId, lightColourId, ambientStrengthId,
     specularStrengthId, shininessId;
 
 GLuint useTextureId, texSamplerId;
-GLuint crateTex, donutTex;
-GLuint mercuryTex, venusTex, marsTex, jupiterTex, saturnTex,
-    uranusTex, neptuneTex, plutoTex;
 
 // controls
 // TODO: move this stuff to it's own separate area
@@ -118,7 +115,7 @@ void render() {
 
   ui.beginFrame();
   ui.renderFPS(fps);
-	ui.renderControls(showControls);
+  ui.renderControls(showControls);
   ui.endFrame();
 
   // clear background
@@ -189,24 +186,7 @@ void initImGui() {
   ImGui_ImplOpenGL3_Init("#version 420");
 }
 
-void init() {
-  // init ui
-  ui.init(glw->window());
-
-  // load main shaders
-  program = glw->loadShader("shaders/vs.vert", "shaders/fs.frag");
-
-  // skybox
-  std::vector<std::string> faces;
-  faces.push_back("space2/px.png"); // +X
-  faces.push_back("space2/nx.png"); // -X
-  faces.push_back("space2/py.png"); // +Y
-  faces.push_back("space2/ny.png"); // -Y
-  faces.push_back("space2/pz.png"); // +Z
-  faces.push_back("space2/nz.png"); // -Z
-
-  skybox = new Skybox(glw, faces);
-
+void getUniformLocations() {
   modelId = glGetUniformLocation(program, "model");
   viewId = glGetUniformLocation(program, "view");
   projectionId = glGetUniformLocation(program, "projection");
@@ -220,6 +200,27 @@ void init() {
 
   useTextureId = glGetUniformLocation(program, "useTexture");
   texSamplerId = glGetUniformLocation(program, "texSampler");
+}
+
+void init() {
+  // init ui
+  ui.init(glw->window());
+
+  // load main shaders
+  program = glw->loadShader("shaders/vs.vert", "shaders/fs.frag");
+
+	getUniformLocations();
+
+  // skybox
+  std::vector<std::string> faces;
+  faces.push_back("space2/px.png"); // +X
+  faces.push_back("space2/nx.png"); // -X
+  faces.push_back("space2/py.png"); // +Y
+  faces.push_back("space2/ny.png"); // -Y
+  faces.push_back("space2/pz.png"); // +Z
+  faces.push_back("space2/nz.png"); // -Z
+
+  skybox = new Skybox(glw, faces);
 
   // create premade meshes
   Mesh cubeMesh = createCube();
@@ -227,9 +228,20 @@ void init() {
   Mesh torusMesh = createTorus();
 
   // load textures
-  crateTex = gTextureManager.loadTexture("crate.png");
-  donutTex = gTextureManager.loadTexture("donut3.jpg");
+  GLuint crateTex = gTextureManager.loadTexture("crate.png");
+  GLuint donutTex = gTextureManager.loadTexture("donut3.jpg");
   GLuint earthTex = gTextureManager.loadTexture("planets/earth_diffuse.jpg");
+	GLuint mercuryTex = gTextureManager.loadTexture("mercury_diffuse.jpg");
+	GLuint venusTex = gTextureManager.loadTexture("planets/venus_diffuse.png");
+	GLuint marsTex = gTextureManager.loadTexture("mars_diffuse.jpg");
+	GLuint jupiterTex = gTextureManager.loadTexture("jupiter_diffuse.jpg");
+	GLuint saturnTex = gTextureManager.loadTexture("saturn_diffuse.jpg");
+	GLuint uranusTex = gTextureManager.loadTexture("uranus_diffuse.jpg");
+	GLuint neptuneTex = gTextureManager.loadTexture("neptune_diffuse.jpg");
+	GLuint plutoTex = gTextureManager.loadTexture("pluto_diffuse.jpg");
+
+	GLuint moonTex = gTextureManager.loadTexture("moon_diffuse.jpg");
+	GLuint sunTex = gTextureManager.loadTexture("sun_diffuse.jpg");
 
   // create scene objects
   auto cube1 = scene.createObject("Cube1", cubeMesh);

@@ -10,8 +10,8 @@
 #include "../include/ObjectLoader.h"
 #include "../include/Scene.h"
 #include "../include/Skybox.h"
-#include "../include/TextureLoader.h"
 #include "../include/UIManager.h"
+#include "../include/TextureManager.h"
 
 #include "../external/imgui/imgui.h"
 #include "../external/imgui/imgui_impl_glfw.h"
@@ -28,7 +28,7 @@ GLuint lightPositionId, viewPositionId, lightColourId, ambientStrengthId,
 
 GLuint useTextureId, texSamplerId;
 GLuint crateTex, donutTex;
-GLuint mercuryTex, venusTex, earthTex, marsTex, jupiterTex, saturnTex,
+GLuint mercuryTex, venusTex, marsTex, jupiterTex, saturnTex,
     uranusTex, neptuneTex, plutoTex;
 
 // controls
@@ -227,9 +227,9 @@ void init() {
   Mesh torusMesh = createTorus();
 
   // load textures
-  crateTex = TextureLoader::loadTexture("crate.png");
-  donutTex = TextureLoader::loadTexture("donut3.jpg");
-  earthTex = TextureLoader::loadTexture("planets/earth_diffuse.jpg");
+  crateTex = gTextureManager.loadTexture("crate.png");
+  donutTex = gTextureManager.loadTexture("donut3.jpg");
+  GLuint earthTex = gTextureManager.loadTexture("planets/earth_diffuse.jpg");
 
   // create scene objects
   auto cube1 = scene.createObject("Cube1", cubeMesh);

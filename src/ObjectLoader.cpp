@@ -4,13 +4,14 @@
 #include "../include/Mesh.h"
 #include "../include/Object.h"
 #include "../include/ObjectLoader.h"
-#include "../include/TextureLoader.h"
+#include "../include/TextureManager.h"
 
 #include <iostream>
 #include <unordered_map>
 #include <vector>
 #include <memory>
 
+TextureManager textureManager;
 std::string objBaseDir = "assets/models/";
 std::string mtlBaseDir = "assets/materials/";
 
@@ -35,7 +36,7 @@ std::shared_ptr<Object> ObjectLoader::loadOBJObject(
     for (size_t i = 0; i < materials.size(); i++) {
         const auto &texName = materials[i].diffuse_texname;
         if (!texName.empty()) {
-            materialTextures[i] = TextureLoader::loadTexture(texName);
+            materialTextures[i] = textureManager.loadTexture(texName);
         }
     }
 

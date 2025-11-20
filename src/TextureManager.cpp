@@ -1,14 +1,16 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../external/stb/stb_image.h"
 
-#include "../include/TextureLoader.h"
+#include "../include/TextureManager.h"
 #include "../include/glad/glad.h"
 #include <iostream>
 #include <string>
 
+TextureManager gTextureManager;
+
 std::string textureBaseDir = "assets/textures/";
 
-GLuint TextureLoader::loadTexture(const std::string &texPath) {
+GLuint TextureManager::loadTexture(const std::string &texPath) {
   int width, height, nrChannels;
   std::string path = textureBaseDir + texPath;
   stbi_set_flip_vertically_on_load(true);
@@ -43,7 +45,7 @@ GLuint TextureLoader::loadTexture(const std::string &texPath) {
   return textureID;
 }
 
-GLuint TextureLoader::loadCubemap(const std::vector<std::string> &faces) {
+GLuint TextureManager::loadCubemap(const std::vector<std::string> &faces) {
   GLuint textureID;
   glGenTextures(1, &textureID);
   glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
@@ -74,9 +76,25 @@ GLuint TextureLoader::loadCubemap(const std::vector<std::string> &faces) {
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-	for (unsigned int i = 0; i < faces.size(); i++) {
-		std::cout << "Loaded cubemap texture: " << faces[i] << std::endl;
-	}
+  for (unsigned int i = 0; i < faces.size(); i++) {
+    std::cout << "Loaded cubemap texture: " << faces[i] << std::endl;
+  }
 
   return textureID;
+}
+
+GLuint TextureManager::getTexture(const std::string &name) {
+  if (textures.find(name) == textures.end()) {
+    std::cerr << "Texture not found: " << name << std::endl;
+    return 0;
+  }
+
+  return textures[name];
+}
+
+void TextureManager::cleanup() {
+  for (auto &[path, tex] : textures)
+    glDeleteTextures(1, &tex);
+
+  textures.clear();
 }

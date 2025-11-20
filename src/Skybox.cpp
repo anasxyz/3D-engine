@@ -1,7 +1,7 @@
 #include "../include/Skybox.h"
 #include "../include/GLFW/WrapperGLFW.h"
 #include "../include/MeshFactory.h"
-#include "../include/TextureLoader.h"
+#include "../include/TextureManager.h"
 
 Skybox::Skybox(GLWrapper *glw, const std::vector<std::string> &faces) {
 
@@ -12,7 +12,7 @@ Skybox::Skybox(GLWrapper *glw, const std::vector<std::string> &faces) {
   samplerId = glGetUniformLocation(program, "skybox");
 
   cubeMesh = createCube();
-  cubemapTexture = TextureLoader::loadCubemap(faces);
+  cubemapTexture = gTextureManager.loadCubemap(faces);
 }
 
 void Skybox::render(const glm::mat4 &view, const glm::mat4 &projection) {

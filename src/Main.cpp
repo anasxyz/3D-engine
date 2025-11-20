@@ -49,6 +49,7 @@ int windowWidth = 1024, windowHeight = 768;
 
 // camera
 Camera camera(vec3(50.0f, 0.0f, 50.0f));
+
 float renderDistance = 10000.0f;
 
 // lighting
@@ -387,6 +388,11 @@ void init() {
   faces.push_back("space3/nz.png"); // -Z
 
   skybox = new Skybox(glw, faces);
+
+	// camera
+	camera.position = vec3(-355.0f, 65.0f, 273.0f);
+	camera.yaw = -400.0f;
+	camera.pitch = -9.8f;
 
   // create premade meshes
   Mesh cubeMesh = createCube();

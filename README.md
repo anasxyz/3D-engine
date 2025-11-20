@@ -2,10 +2,10 @@
 
 ## General features:
 
-- Phong lighting model implemented (Ambient, Diffuse, Specular components).
-- Cube Map Skybox for an immersive space environment.
+- Phong lighting model implemented (ambient, diffuse, specular components).
 - 2D Texture Mapping.
-- Primitive mesh generation (Sphere, Cube, etc.).
+- Cube map scene skybox.
+- Primitive mesh generation (sphere, cube, etc.).
 - External .obj model and .mtl material loading (via tinyobjloader).
 - Frame rate independent physics.
 - Modular code structure with clear separation of concerns using dedicated classes: Camera, Scene, Skybox, TextureManager, etc.

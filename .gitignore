@@ -2,14 +2,14 @@
 # /dist/
 todo.md
 
-app
+# app
 *.o
 
 *.obj
 *.mtl
 
-*.exe
-*.out
+# *.exe
+# *.out
 
 imgui.ini
 *.DS_Store

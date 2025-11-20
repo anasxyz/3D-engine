@@ -148,3 +148,52 @@ inline Mesh createTorus(float majorRadius = 1.0f, float minorRadius = 0.5f,
   torus.setup(vertices, indices);
   return torus;
 }
+
+inline Mesh createSkysphere(float radius = 1.0f, int stacks = 64,
+                            int slices = 128) {
+  Mesh sphere;
+
+  std::vector<Vertex> vertices;
+  std::vector<GLuint> indices;
+
+  for (int i = 0; i <= stacks; i++) {
+    float v_ratio = float(i) / stacks;
+    float phi = v_ratio * glm::pi<float>();
+
+    float sinPhi = sin(phi);
+    float cosPhi = cos(phi);
+
+    for (int j = 0; j <= slices; j++) {
+      float u_ratio = float(j) / slices;
+      float theta = u_ratio * glm::two_pi<float>();
+
+      float x = radius * sinPhi * cos(theta);
+      float y = radius * cosPhi;
+      float z = radius * sinPhi * sin(theta);
+
+      glm::vec3 pos(x, y, z);
+      glm::vec3 normal = glm::normalize(pos);
+      glm::vec2 uv(u_ratio, 1.0f - v_ratio);
+
+      vertices.emplace_back(pos, normal, uv);
+    }
+  }
+
+  for (int i = 0; i < stacks; i++) {
+    for (int j = 0; j < slices; j++) {
+      int first = i * (slices + 1) + j;
+      int second = first + slices + 1;
+
+      indices.push_back(first);
+      indices.push_back(second);
+      indices.push_back(first + 1);
+
+      indices.push_back(second);
+      indices.push_back(second + 1);
+      indices.push_back(first + 1);
+    }
+  }
+
+  sphere.setup(vertices, indices);
+  return sphere;
+}

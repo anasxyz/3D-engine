@@ -9,7 +9,9 @@
 #include "../include/MeshFactory.h"
 #include "../include/ObjectLoader.h"
 #include "../include/Scene.h"
-#include "../include/TextureLoader.h"
+#include "../include/Skybox.h"
+#include "../include/TextureManager.h"
+#include "../include/UIManager.h"
 
 #include "../external/imgui/imgui.h"
 #include "../external/imgui/imgui_impl_glfw.h"
@@ -25,9 +27,6 @@ GLuint lightPositionId, viewPositionId, lightColourId, ambientStrengthId,
     specularStrengthId, shininessId;
 
 GLuint useTextureId, texSamplerId;
-GLuint crateTex, donutTex;
-GLuint mercuryTex, venusTex, earthTex, marsTex, jupiterTex, saturnTex,
-    uranusTex, neptuneTex, plutoTex;
 
 // controls
 // TODO: move this stuff to it's own separate area
@@ -57,6 +56,10 @@ float specularStrength = 0.1f;
 
 // scene
 Scene scene;
+// skybox
+Skybox *skybox;
+// UI manager
+UIManager ui;
 
 // rotation speeds
 float rotSpeed = 0.2f;
@@ -91,100 +94,52 @@ void updateObjectMovement(Object &obj) {
 void render() {
   GLFWwindow *window = glw->window();
 
-  bool hPressed = glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS;
-  float currentTime = glfwGetTime();
-
-  if (hPressed && !hPressedLastFrame &&
-      (currentTime - lastToggleTime) > toggleCooldown) {
-    showControls = !showControls; // toggle menu
-    lastToggleTime = currentTime; // reset cooldown
-  }
-  hPressedLastFrame = hPressed;
-
-  // idk i had to set it to an intial value to start
+  // fps calculation
   static float fps = 60.0f;
   float currentFrameTime = glfwGetTime();
   deltaTime = currentFrameTime - lastFrameTime;
   lastFrameTime = currentFrameTime;
-  // smoothing factor
-  // (0 < alpha <= 1)
-  const float alpha = 0.1f;
+  const float alpha = 0.05f;
   fps = fps * (1.0f - alpha) + (1.0f / deltaTime) * alpha;
 
-  // imgui help menu
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
+  bool hPressed = glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS;
+  float currentTime = glfwGetTime();
 
-  ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
-  ImGui::Begin("FPS", nullptr,
-               ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize |
-                   ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-                   ImGuiWindowFlags_NoBackground);
-
-  ImGui::SetWindowFontScale(2.0f);
-  ImGui::Text("FPS: %.1f", fps);
-
-  ImGui::Dummy(ImVec2(0.0f, 10.0f));
-
-  if (!showControls) {
-    ImGui::TextColored(ImVec4(1, 1, 0, 1), "Press H for controls");
+  // ui stuff
+  if (hPressed && !hPressedLastFrame &&
+      (currentTime - lastToggleTime) > toggleCooldown) {
+    showControls = !showControls;
+    lastToggleTime = currentTime;
   }
+  hPressedLastFrame = hPressed;
 
-  ImGui::End();
+  ui.beginFrame();
+  ui.renderFPS(fps);
+  ui.renderControls(showControls);
+  ui.endFrame();
 
-  // imgui controls menu
-  if (showControls) {
-    ImGui::SetNextWindowPos(ImVec2(10, 60), ImGuiCond_Always);
-    ImGui::Begin("Controls", nullptr,
-                 ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize |
-                     ImGuiWindowFlags_NoMove);
-
-    ImGui::SetWindowFontScale(2.0f);
-
-    ImGui::Text("Camera Controls:");
-    ImGui::Text("WASD: move forward/backward/left/right");
-    ImGui::Text("Space / Left Shift: move up/down");
-    ImGui::Text("Arrow keys: look around");
-
-    ImGui::Dummy(ImVec2(0.0f, 10.0f));
-
-    ImGui::Text("Control Crate (cube):");
-    ImGui::Text("U / O / P: rotate X / Y / Z");
-    ImGui::Text("I / K: move up/down (Y axis)");
-    ImGui::Text("J / L: move left/right (X axis)");
-    ImGui::Text("N / M: move forward/backward (Z axis)");
-
-    ImGui::Dummy(ImVec2(0.0f, 10.0f));
-
-    ImGui::Text("Press H: toggle this menu");
-
-    ImGui::End();
-  }
-
-  // clear screen
+  // clear background
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // set viewport
   glfwGetFramebufferSize(window, &windowWidth, &windowHeight);
   glViewport(0, 0, windowWidth, windowHeight);
 
-  glUseProgram(program);
-
-  // projection
   float aspect = (float)windowWidth / (float)windowHeight;
   glm::mat4 projection =
       glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
-  glUniformMatrix4fv(projectionId, 1, GL_FALSE, &projection[0][0]);
 
-  // view
   camera.processCameraMovement(window, deltaTime);
   camera.processCameraLook(window, deltaTime);
   glm::mat4 view = camera.getViewMatrix();
-  glUniformMatrix4fv(viewId, 1, GL_FALSE, &view[0][0]);
 
-  // lighting uniforms
+  skybox->render(view, projection);
+
+  glUseProgram(program);
+
+  glUniformMatrix4fv(viewId, 1, GL_FALSE, &view[0][0]);
+  glUniformMatrix4fv(projectionId, 1, GL_FALSE, &projection[0][0]);
+
   glUniform3fv(lightPositionId, 1, &lightPosition[0]);
   glUniform3fv(viewPositionId, 1, &camera.position[0]);
   glUniform3fv(lightColourId, 1, &lightColour[0]);
@@ -193,10 +148,8 @@ void render() {
   glUniform1f(specularStrengthId, specularStrength);
 
   for (auto &obj : scene.objects) {
-    // set model matrix
     glUniformMatrix4fv(modelId, 1, GL_FALSE, &obj->transform.getMatrix()[0][0]);
 
-    // bind texture if one exists for this object
     if (obj->textureId != 0) {
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, obj->textureId);
@@ -206,11 +159,9 @@ void render() {
       glUniform1i(useTextureId, 0);
     }
 
-    // rotate objects
     obj->transform.rotation.y += rotSpeed * deltaTime;
     obj->transform.rotation.x += rotSpeed * 0.1f * deltaTime;
 
-    // draw object mesh
     obj->mesh.draw();
   }
 
@@ -235,14 +186,7 @@ void initImGui() {
   ImGui_ImplOpenGL3_Init("#version 420");
 }
 
-void init() {
-  // init imgui
-  initImGui();
-
-  // load shaders
-  program = glw->loadShader("shaders/vs.vert", "shaders/fs.frag");
-
-  // uniform locations
+void getUniformLocations() {
   modelId = glGetUniformLocation(program, "model");
   viewId = glGetUniformLocation(program, "view");
   projectionId = glGetUniformLocation(program, "projection");
@@ -256,6 +200,27 @@ void init() {
 
   useTextureId = glGetUniformLocation(program, "useTexture");
   texSamplerId = glGetUniformLocation(program, "texSampler");
+}
+
+void init() {
+  // init ui
+  ui.init(glw->window());
+
+  // load main shaders
+  program = glw->loadShader("shaders/vs.vert", "shaders/fs.frag");
+
+	getUniformLocations();
+
+  // skybox
+  std::vector<std::string> faces;
+  faces.push_back("space2/px.png"); // +X
+  faces.push_back("space2/nx.png"); // -X
+  faces.push_back("space2/py.png"); // +Y
+  faces.push_back("space2/ny.png"); // -Y
+  faces.push_back("space2/pz.png"); // +Z
+  faces.push_back("space2/nz.png"); // -Z
+
+  skybox = new Skybox(glw, faces);
 
   // create premade meshes
   Mesh cubeMesh = createCube();
@@ -263,18 +228,20 @@ void init() {
   Mesh torusMesh = createTorus();
 
   // load textures
-  crateTex = TextureLoader::loadTexture("crate.png");
-  donutTex = TextureLoader::loadTexture("donut3.jpg");
+  GLuint crateTex = gTextureManager.loadTexture("crate.png");
+  GLuint donutTex = gTextureManager.loadTexture("donut3.jpg");
+  GLuint earthTex = gTextureManager.loadTexture("planets/earth_diffuse.jpg");
+	GLuint mercuryTex = gTextureManager.loadTexture("mercury_diffuse.jpg");
+	GLuint venusTex = gTextureManager.loadTexture("planets/venus_diffuse.png");
+	GLuint marsTex = gTextureManager.loadTexture("mars_diffuse.jpg");
+	GLuint jupiterTex = gTextureManager.loadTexture("jupiter_diffuse.jpg");
+	GLuint saturnTex = gTextureManager.loadTexture("saturn_diffuse.jpg");
+	GLuint uranusTex = gTextureManager.loadTexture("uranus_diffuse.jpg");
+	GLuint neptuneTex = gTextureManager.loadTexture("neptune_diffuse.jpg");
+	GLuint plutoTex = gTextureManager.loadTexture("pluto_diffuse.jpg");
 
-  // mercuryTex = TextureLoader::loadTexture("mercury_diffuse.jpg");
-  // venusTex = TextureLoader::loadTexture("planets/venus_diffuse.png");
-  earthTex = TextureLoader::loadTexture("planets/earth_diffuse.jpg");
-  // marsTex = TextureLoader::loadTexture("mars_diffuse.jpg");
-  // jupiterTex = TextureLoader::loadTexture("jupiter_diffuse.jpg");
-  // saturnTex = TextureLoader::loadTexture("saturn_diffuse.jpg");
-  // uranusTex = TextureLoader::loadTexture("uranus_diffuse.jpg");
-  // neptuneTex = TextureLoader::loadTexture("neptune_diffuse.jpg");
-  // plutoTex = TextureLoader::loadTexture("pluto_diffuse.jpg");
+	GLuint moonTex = gTextureManager.loadTexture("moon_diffuse.jpg");
+	GLuint sunTex = gTextureManager.loadTexture("sun_diffuse.jpg");
 
   // create scene objects
   auto cube1 = scene.createObject("Cube1", cubeMesh);
@@ -291,9 +258,10 @@ void init() {
   sphere1->transform.scale = vec3(0.8f);
   sphere1->textureId = earthTex;
 
-	auto car = ObjectLoader::loadOBJObject("Car.obj", vec4(0.0f, 0.0f, 0.0f, 1.0f));
-	scene.addObject(car);
-	car->transform.position = vec3(10.0f, 0.0f, -10.0f);
+  auto car =
+      ObjectLoader::loadOBJObject("Car.obj", vec4(0.0f, 0.0f, 0.0f, 1.0f));
+  scene.addObject(car);
+  car->transform.position = vec3(10.0f, 0.0f, -10.0f);
 }
 
 int main() {

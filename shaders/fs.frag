@@ -17,11 +17,13 @@ uniform float shininess;
 uniform bool useTexture;
 uniform sampler2D texSampler;
 
+uniform int isLightSource;
+
 void main() {
 	// if it's a light source just skip the lighting effects and display it with its true colour
   if (isLightSource == 1) {
     if (useTexture) {
-      outputColour = texture(texSampler, fragTexCoord)        
+      outputColour = texture(texSampler, fragTexCoord);     
 	  } else {
       outputColour = fragColour; 
     }

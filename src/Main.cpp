@@ -28,6 +28,8 @@ GLuint lightPositionId, viewPositionId, lightColourId, ambientStrengthId,
 
 GLuint useTextureId, texSamplerId;
 
+GLuint isLightSourceId;
+
 // controls
 // TODO: move this stuff to it's own separate area
 // initially hidden
@@ -149,6 +151,11 @@ void render() {
 
   for (auto &obj : scene.objects) {
     glUniformMatrix4fv(modelId, 1, GL_FALSE, &obj->transform.getMatrix()[0][0]);
+		
+		// if current object is the sun
+		bool isSun = (obj->name == "sun");
+		// set uniform flagg
+		glUniform1i(isLightSourceId, isSun ? 1 : 0);
 
     if (obj->textureId != 0) {
       glActiveTexture(GL_TEXTURE0);
@@ -186,6 +193,8 @@ void getUniformLocations() {
 
   useTextureId = glGetUniformLocation(program, "useTexture");
   texSamplerId = glGetUniformLocation(program, "texSampler");
+
+  isLightSourceId = glGetUniformLocation(program, "isLightSource");
 }
 
 void init() {
@@ -217,13 +226,16 @@ void init() {
   GLuint crateTex = gTextureManager.loadTexture("crate.png");
   GLuint donutTex = gTextureManager.loadTexture("donut3.jpg");
   GLuint earthTex = gTextureManager.loadTexture("planets/earth_diffuse.jpg");
-  GLuint mercuryTex = gTextureManager.loadTexture("planets/mercury_diffuse.jpg");
+  GLuint mercuryTex =
+      gTextureManager.loadTexture("planets/mercury_diffuse.jpg");
   GLuint venusTex = gTextureManager.loadTexture("planets/venus_diffuse.png");
   GLuint marsTex = gTextureManager.loadTexture("planets/mars_diffuse.jpg");
-  GLuint jupiterTex = gTextureManager.loadTexture("planets/jupiter_diffuse.jpg");
+  GLuint jupiterTex =
+      gTextureManager.loadTexture("planets/jupiter_diffuse.jpg");
   GLuint saturnTex = gTextureManager.loadTexture("planets/saturn_diffuse.jpg");
   GLuint uranusTex = gTextureManager.loadTexture("planets/uranus_diffuse.jpg");
-  GLuint neptuneTex = gTextureManager.loadTexture("planets/neptune_diffuse.jpg");
+  GLuint neptuneTex =
+      gTextureManager.loadTexture("planets/neptune_diffuse.jpg");
   GLuint plutoTex = gTextureManager.loadTexture("planets/pluto_diffuse.jpg");
 
   GLuint moonTex = gTextureManager.loadTexture("planets/moon_diffuse.jpg");
@@ -289,15 +301,13 @@ void init() {
   neptune->textureId = neptuneTex;
 
   auto pluto = scene.createObject("pluto", sphereMesh);
-  pluto->transform.position =
-      vec3(110.0f, 0.0f, 0.0f);
-              
-  pluto->transform.scale = vec3(0.1f); 
+  pluto->transform.position = vec3(110.0f, 0.0f, 0.0f);
+
+  pluto->transform.scale = vec3(0.1f);
   pluto->textureId = plutoTex;
 
   auto moon = scene.createObject("moon", sphereMesh);
-  moon->transform.position =
-      vec3(14.5f, 0.0f, 0.0f);  
+  moon->transform.position = vec3(14.5f, 0.0f, 0.0f);
   moon->transform.scale = vec3(0.08f);
   moon->textureId = moonTex;
 

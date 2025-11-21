@@ -496,6 +496,11 @@ void init() {
   moon->transform.position.y = 0.0f;
   moon->transform.scale = vec3(0.08f) * sizeScale;
   moon->textureId = moonTex;
+
+	auto spaceShip = ObjectLoader::loadOBJObject("spaceship2.obj");
+	spaceShip->transform.position = camera.position;
+	spaceShip->transform.scale = vec3(0.1f) * sizeScale;
+	scene.addObject(spaceShip);
 }
 
 int main() {

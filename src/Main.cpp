@@ -72,10 +72,10 @@ float rotSpeed = 0.2f;
 // solar system specific state and constants
 // scaling factors
 const float sizeScale = 5.0f;
-const float posScale = 10.0f;
+const float posScale = 15.0f;
 
 vec3 sunMovementDirection = vec3(0.0f, 0.0f, 1.0f);
-float sunMovementSpeed = 0.0f;
+float sunMovementSpeed = 3.0f;
 
 // orbit radii (pre calculated from init setup position.x * posScale)
 const float mercuryRadius = 6.0f * posScale;
